@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Редактировать рубрику</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><h1>Редактировать рубрику</h1></header>
+  <main>
+    <form method="POST" action="/edit-category/<%= category.category_id %>">
+      <input name="category_name" value="<%= category.category_name %>" placeholder="Название рубрики" required>
+      <button>Сохранить</button>
+      <a href="/">Отмена</a>
+    </form>
+  </main>
+</body>
+</html>
