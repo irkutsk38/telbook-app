@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчёт 1: Города по алфавиту</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>📞 Телефонный справочник</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/reports/cities">Города</a>
+      <a href="/reports/persons">Физлица</a>
+      <a href="/reports/organizations">Организации</a>
+      <a href="/reports/by-rubric">По рубрике</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>📞 Города по алфавиту (с телефонными кодами)</h2>
+
+    <% if (typeof cities !== 'undefined' && cities.length > 0) { %>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Город</th>
+            <th>Телефонный код</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cities.forEach(c => { %>
+            <tr>
+              <td><%= c.city_name %></td>
+              <td><%= c.phone_code %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>Нет данных о городах.</p>
+    <% } %>
+
+    <br>
+    <a href="/">← На главную</a>
+  </main>
+
+  <footer>&copy; 2025 Телефонный справочник</footer>
+</body>
+</html>

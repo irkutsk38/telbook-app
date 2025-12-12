@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Редактировать город</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><h1>Редактировать город</h1></header>
+  <main>
+    <form method="POST" action="/edit-city/<%= city.city_id %>">
+      <input name="city_name" value="<%= city.city_name %>" placeholder="Город" required>
+      <input name="phone_code" value="<%= city.phone_code %>" placeholder="Телефонный код" required>
+      <select name="country_id" required>
+        <% countries.forEach(co => { %>
+          <option value="<%= co.country_id %>" <%= (co.country_id == city.country_id) ? 'selected' : '' %>><%= co.country_name %></option>
+        <% }) %>
+      </select>
+      <button>Сохранить</button>
+      <a href="/">Отмена</a>
+    </form>
+  </main>
+</body>
+</html>
