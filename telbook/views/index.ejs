@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Телефонный справочник</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
+    header { background: #333; color: white; padding: 1rem; text-align: center; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; }
+    main { padding: 1.5rem; }
+    section { background: white; margin: 1.5rem 0; padding: 1rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; }
+    input, select, button { padding: 6px 10px; margin: 4px; border: 1px solid #ccc; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+    th { background: #f0f0f0; }
+    label { display: inline-block; margin-right: 10px; }
+    footer { text-align: center; padding: 1rem; background: #333; color: white; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📞 Телефонный справочник</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/reports/cities">Города</a>
+      <a href="/reports/persons">Физлица</a>
+      <a href="/reports/organizations">Организации</a>
+      <a href="/reports/by-rubric">По рубрике</a>
+    </nav>
+  </header>
+  <main>
+    <section>
+      <h2>🔍 Поиск</h2>
+      <form method="GET" action="/search">
+        <label>
+          Фамилия:
+          <input type="text" name="surname" value="<%= (typeof search !== 'undefined' && search.surname) ? search.surname : '' %>">
+        </label>
+        <label>
+          Город:
+          <select name="city_id">
+            <option value="all">Все</option>
+            <% if (typeof cities !== 'undefined') { %>
+              <% cities.forEach(c => { %>
+                <option value="<%= c.city_id %>" 
+                  <%= (typeof search !== 'undefined' && search.city_id == c.city_id) ? 'selected' : '' %>>
+                  <%= c.city_name %>
+                </option>
+              <% }) %>
+            <% } %>
+          </select>
+        </label>
+        <label>
+          Рубрика:
+          <select name="category_id">
+            <option value="all">Все</option>
+            <% if (typeof categories !== 'undefined') { %>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.category_id %>"
+                  <%= (typeof search !== 'undefined' && search.category_id == cat.category_id) ? 'selected' : '' %>>
+                  <%= cat.category_name %>
+                </option>
+              <% }) %>
+            <% } %>
+          </select>
+        </label>
+        <button type="submit">Найти</button>
+      </form>
+    </section>
+    <section>
+      <h2>👤 Добавить физическое лицо</h2>
+      <form method="POST" action="/add-person">
+        <input type="text" name="surname" placeholder="Фамилия" required>
+        <input type="text" name="name" placeholder="Имя" required>
+        <input type="text" name="patronymic" placeholder="Отчество">
+        <input type="text" name="streetname" placeholder="Улица" required>
+        <input type="text" name="homenumber" placeholder="Дом" required>
+        <input type="text" name="building" placeholder="Корпус">
+        <input type="text" name="apartment" placeholder="Квартира">
+        <input type="text" name="phone_number" placeholder="Телефон" required>
+        <select name="city_id" required>
+          <option value="">— Выберите город —</option>
+          <% if (typeof cities !== 'undefined') { %>
+            <% cities.forEach(c => { %>
+              <option value="<%= c.city_id %>"><%= c.city_name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+        <button type="submit">Добавить человека</button>
+      </form>
+    </section>
+    <section>
+      <h2>🏢 Добавить организацию</h2>
+      <form method="POST" action="/add-org" id="orgForm">
+        <input type="text" name="org_name" placeholder="Название организации" required>
+        <input type="text" name="streetname" placeholder="Улица" required>
+        <input type="text" name="homenumber" placeholder="Дом" required>
+        <input type="text" name="building" placeholder="Корпус">
+        <input type="text" name="office" placeholder="Офис">
+        <select name="city_id" required>
+          <option value="">— Выберите город —</option>
+          <% if (typeof cities !== 'undefined') { %>
+            <% cities.forEach(c => { %>
+              <option value="<%= c.city_id %>"><%= c.city_name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+        <select name="category_id" required>
+          <option value="">— Выберите рубрику —</option>
+          <% if (typeof categories !== 'undefined') { %>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.category_id %>"><%= cat.category_name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+
+        <div id="phones">
+          <input type="text" name="phones" placeholder="Телефон 1" required>
+        </div>
+        <button type="button" onclick="addPhone()">+ Добавить телефон</button>
+        <button type="submit">Добавить организацию</button>
+      </form>
+    </section>
+    <section>
+      <h2>👤 Физические лица</h2>
+      <% if (typeof persons !== 'undefined' && persons.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Фамилия</th>
+              <th>Имя</th>
+              <th>Отчество</th>
+              <th>Телефон</th>
+              <th>Город</th>
+              <th>Адрес</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% persons.forEach(p => { %>
+              <tr>
+                <td><%= p.surname %></td>
+                <td><%= p.name %></td>
+                <td><%= p.patronymic || '' %></td>
+                <td><%= p.phone_number %></td>
+                <td><%= p.city_name %></td>
+                <td>
+                  <%= p.streetname %> <%= p.homenumber %>
+                  <%= p.building ? ', корп. ' + p.building : '' %>
+                  <%= p.apartment ? ', кв. ' + p.apartment : '' %>
+                </td>
+                <td>
+                  <a href="/edit-person/<%= p.person_id %>">✏️</a>
+                  <a href="/delete-person/<%= p.person_id %>" onclick="return confirm('Удалить запись?')">🗑️ Удалить</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>Нет физических лиц.</p>
+      <% } %>
+    </section>
+    <section>
+      <h2>🏢 Организации</h2>
+      <% if (typeof orgs !== 'undefined' && orgs.length > 0) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Рубрика</th>
+              <th>Телефоны</th>
+              <th>Город</th>
+              <th>Адрес</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orgs.forEach(o => { %>
+              <tr>
+                <td><%= o.org_name %></td>
+                <td><%= o.category_name %></td>
+                <td><%= o.phones || '—' %></td>
+                <td><%= o.city_name %></td>
+                <td>
+                  <%= o.streetname %> <%= o.homenumber %>
+                  <%= o.building ? ', корп. ' + o.building : '' %>
+                  <%= o.office ? ', оф. ' + o.office : '' %>
+                </td>
+                <td>
+                  <a href="/edit-org/<%= o.org_id %>">✏️</a>
+                  <a href="/delete-org/<%= o.org_id %>" onclick="return confirm('Удалить организацию и все её телефоны?')">🗑️ Удалить</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>Нет организаций.</p>
+      <% } %>
+    </section>
+  </main>
+
+  <script>
+    function addPhone() {
+      const container = document.getElementById('phones');
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = 'phones';
+      input.placeholder = 'Телефон';
+      input.style.margin = '4px';
+      input.style.padding = '6px 10px';
+      input.style.border = '1px solid #ccc';
+      input.style.borderRadius = '4px';
+      container.appendChild(input);
+    }
+  </script>
+
+<section>
+  <h2>🏙️ Города</h2>
+  <% if (typeof cities !== 'undefined' && cities.length > 0) { %>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Город</th>
+          <th>Код</th>
+          <th>Страна</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cities.forEach(c => { %>
+          <tr>
+            <td><%= c.city_name %></td>
+            <td><%= c.phone_code %></td>
+            <td>
+              <% if (typeof countries !== 'undefined') { %>
+                <% const country = countries.find(co => co.country_id == c.country_id); %>
+                <%= country ? country.country_name : '—' %>
+              <% } else { %>
+                (загрузка...)
+              <% } %>
+            </td>
+            <td>
+              <a href="/edit-city/<%= c.city_id %>" title="Редактировать">✏️</a>
+              <a href="/delete-city/<%= c.city_id %>" 
+                 onclick="return confirm('Удалить город? Все связанные записи могут быть удалены или нарушены!')"
+                 title="Удалить">🗑️</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Нет городов.</p>
+  <% } %>
+
+  <form method="POST" action="/add-city" style="margin-top: 1rem;">
+    <input type="text" name="city_name" placeholder="Город" required style="width: 120px;">
+    <input type="text" name="phone_code" placeholder="Код" required style="width: 80px;">
+    <select name="country_id" required style="width: 120px;">
+      <% if (typeof countries !== 'undefined') { %>
+        <% countries.forEach(co => { %>
+          <option value="<%= co.country_id %>"><%= co.country_name %></option>
+        <% }) %>
+      <% } else { %>
+        <option value="1">Россия</option>
+      <% } %>
+    </select>
+    <button type="submit">➕ Добавить город</button>
+  </form>
+</section>
+
+<section>
+  <h2>🗂️ Рубрики</h2>
+  <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% categories.forEach(cat => { %>
+          <tr>
+            <td><%= cat.category_name %></td>
+            <td>
+              <a href="/edit-category/<%= cat.category_id %>" title="Редактировать">✏️</a>
+              <a href="/delete-category/<%= cat.category_id %>" 
+                 onclick="return confirm('Удалить рубрику?')"
+                 title="Удалить">🗑️</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Нет рубрик.</p>
+  <% } %>
+  <form method="POST" action="/add-category" style="margin-top: 1rem;">
+    <input type="text" name="category_name" placeholder="Название рубрики" required>
+    <button type="submit">➕ Добавить рубрику</button>
+  </form>
+</section>
+
+<section>
+  <h2>🌍 Страны</h2>
+  <% if (typeof countries !== 'undefined' && countries.length > 0) { %>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% countries.forEach(co => { %>
+          <tr>
+            <td><%= co.country_name %></td>
+            <td>
+              <a href="/edit-country/<%= co.country_id %>" title="Редактировать">✏️</a>
+              <a href="/delete-country/<%= co.country_id %>" 
+                 onclick="return confirm('Удалить страну?')"
+                 title="Удалить">🗑️</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Нет стран.</p>
+  <% } %>
+  <form method="POST" action="/add-country" style="margin-top: 1rem;">
+    <input type="text" name="country_name" placeholder="Название страны" required>
+    <button type="submit">➕ Добавить страну</button>
+  </form>
+</section>
+  <footer>
+    &copy; 2025 Телефонный справочник
+  </footer>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title><%= typeof title !== 'undefined' ? title : 'Телефонный справочник' %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>📞 Телефонный справочник</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/reports/cities">Города (алфавит)</a>
+      <a href="/reports/persons">Физлица (по фамилии)</a>
+      <a href="/reports/organizations">Организации (по городам и рубрикам)</a>
+      <a href="/reports/by-rubric">Организации по рубрике</a>
+    </nav>
+  </header>
+
+  <main>
+    <%- typeof content !== 'undefined' ? content : body || '' %>
+  </main>
+
+  <footer>
+    &copy; 2025 Телефонный справочник
+  </footer>
+</body>
+</html>

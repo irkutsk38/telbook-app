@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Редактировать физлицо</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header><h1>Редактировать физическое лицо</h1></header>
+  <main>
+    <form method="POST" action="/edit-person/<%= person.person_id %>">
+      <input name="surname" value="<%= person.surname %>" placeholder="Фамилия" required>
+      <input name="name" value="<%= person.name %>" placeholder="Имя" required>
+      <input name="patronymic" value="<%= person.patronymic || '' %>" placeholder="Отчество">
+      <input name="streetname" value="<%= person.streetname %>" placeholder="Улица" required>
+      <input name="homenumber" value="<%= person.homenumber %>" placeholder="Дом" required>
+      <input name="building" value="<%= person.building || '' %>" placeholder="Корпус">
+      <input name="apartment" value="<%= person.apartment || '' %>" placeholder="Квартира">
+      <input name="phone_number" value="<%= person.phone_number %>" placeholder="Телефон" required>
+      <select name="city_id" required>
+        <% cities.forEach(c => { %>
+          <option value="<%= c.city_id %>" <%= (c.city_id == person.city_id) ? 'selected' : '' %>><%= c.city_name %></option>
+        <% }) %>
+      </select>
+      <button>Сохранить</button>
+      <a href="/">Отмена</a>
+    </form>
+  </main>
+</body>
+</html>

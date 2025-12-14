@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчёт 4: Организации по рубрике</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <h1>📞 Телефонный справочник</h1>
+    <nav>
+      <a href="/">Главная</a>
+      <a href="/reports/cities">Города</a>
+      <a href="/reports/persons">Физлица</a>
+      <a href="/reports/organizations">Организации</a>
+      <a href="/reports/by-rubric">По рубрике</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>🔍 Организации по рубрике</h2>
+
+    <form method="GET">
+      <label>
+        Название рубрики:
+        <input type="text" name="category_name" 
+               value="<%= typeof category_name !== 'undefined' ? category_name : '' %>"
+               placeholder="Например: Аптека, Кафе">
+      </label>
+      <button type="submit">Показать</button>
+    </form>
+
+    <% if (typeof organizations !== 'undefined') { %>
+  <% if (organizations.length === 0) { %>
+    <p>По рубрике "<%= category_name || '—' %>" ничего не найдено.</p>
+  <% } else { %>
+    <h3>Результаты для: "<%= category_name %>"</h3>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Организация</th>
+          <th>Телефоны</th>
+          <th>Город</th>
+          <th>Рубрика</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% organizations.forEach(o => { %>
+          <tr>
+            <td><%= o.org_name %></td>
+            <td><%= o.phones || '—' %></td>
+            <td><%= o.city_name %></td>
+            <td><%= o.category_name %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <!-- Кнопка экспорта с текущей рубрикой -->
+    <a href="/export/by-rubric?category_name=<%= encodeURIComponent(category_name) %>" class="btn">💾 Скачать Excel</a>
+  <% } %>
+<% } %>
+
+    <br>
+    <a href="/">← На главную</a>
+  </main>
+
+  <footer>&copy; 2025 Телефонный справочник</footer>
+</body>
+</html>
